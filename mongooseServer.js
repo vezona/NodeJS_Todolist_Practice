@@ -1,9 +1,16 @@
 const http = require("http");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const Room = require("./models/room")
 
+dotenv.config({path:'./config.env'})
+const DB = process.env.DATA_BASE.replace(
+    '<password>',
+    process.env.PASSWORD
+)
 
 // 連接資料庫
-mongoose.connect('mongodb://localhost:27017/hotel')
+mongoose.connect(DB)
     .then((res) => {
         console.log('資料庫連線成功');
     })
@@ -11,32 +18,19 @@ mongoose.connect('mongodb://localhost:27017/hotel')
       console.log(err);
     })
 
-// 設定 schema
-const roomSchema = {
-    name: String,
-    price: {
-        type: Number,
-        required: true, // 也可以寫這樣 [true, "價格必填"]，字串帶自己想傳的字
-    },
-    rating:Number,
-}
-
-const versionKey = new mongoose.Schema(
-    {  // 第一個參數，放要新增的欄位型別
-        name: String,
-        price: {
-            type: Number,
-            required: true, 
-        },
-        rating:Number,
-    },
-    {  // 第二個參數，放預設欄位
-        versionKey: false
-    }
-)
-
-// 設定 Model 
-const Room = mongoose.model('Room', roomSchema)
+// const versionKey = new mongoose.Schema(
+//     {  // 第一個參數，放要新增的欄位型別
+//         name: String,
+//         price: {
+//             type: Number,
+//             required: true, 
+//         },
+//         rating:Number,
+//     },
+//     {  // 第二個參數，放預設欄位
+//         versionKey: false
+//     }
+// )
 
 // 建立實例/實體
 const testRoom = new Room({
@@ -52,8 +46,6 @@ testRoom.save()
     }).catch(err => {
         console.log(err);
     })
-
-
   
 // 設定監聽
 const requestListener = (req,res)=>{
@@ -64,4 +56,4 @@ const requestListener = (req,res)=>{
 }
 
 const server = http.createServer(requestListener);
-server.listen(3005);
+server.listen(process.env.PORT);
